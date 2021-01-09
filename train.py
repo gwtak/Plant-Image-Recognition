@@ -101,7 +101,7 @@ model.compile(optimizer=tf.keras.optimizers.Adam(), loss='sparse_categorical_cro
 #模型信息概览
 model.summary()
 #模型存储位置
-checkpoint_save_path = "./planet.ckpt"
+checkpoint_save_path = "./plant.ckpt"
 #判断是否已有模型参数
 if os.path.exists(checkpoint_save_path + '.index'):
     print('-------------load the model-----------------')

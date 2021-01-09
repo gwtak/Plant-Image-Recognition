@@ -49,7 +49,7 @@ def get_images():
 #标签名字
 labels_name = ["daisy", "dandelion", "roses", "sunflowers", "tulips"]
 #模型存储位置
-checkpoint_save_path = "./planet.ckpt"
+checkpoint_save_path = "./plant.ckpt"
 #获取已存在的MobileNetV2模型
 mobile_net = tf.keras.applications.MobileNetV2(input_shape=(192, 192, 3), include_top=False)
 #MobileNet的权重为不可训练
