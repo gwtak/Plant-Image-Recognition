@@ -12,7 +12,7 @@ def get_paths_labels(data_root):
     # 将地址转换为字符串
     all_image_paths = [str(path) for path in all_image_paths]
     # 打乱地址顺序
-    # random.shuffle(all_image_paths)
+    random.shuffle(all_image_paths)
     # 通过文件夹名字，获取所有标签的名字，存放于列表
     label_names = sorted(item.name for item in data_root.glob('*/') if item.is_dir())
     # 将标签名字与索引对应，存放于字典
@@ -24,33 +24,31 @@ def get_paths_labels(data_root):
 
 
 # 对图片进行标准化
-def preprocess_image(image_paths_list):
-    # 存放处理后的标准图片
-    image_final_list = []
-    # 读取图片地址列表
-    for image_path in image_paths_list:
-        # 原始图片
-        image_raw = tf.io.read_file(image_path)
-        # 原始图片转换为tensor类型
-        image_tensor = tf.image.decode_image(image_raw, channels=3)
-        # 如果图片是4维的，降维处理
-        if image_tensor.ndim == 4:
-            # 删除维度0
-            image_tensor = tf.reduce_sum(image_tensor, 0)
-        # 修改尺寸
-        image_final = tf.image.resize(image_tensor, [image_height, image_width])
-        # 绝对色彩信息
-        image_final = image_final / 255.0
-        # 添加到标准图片列表
-        image_final_list.append(image_final)
-    # 返回标准图片列表
-    return image_final_list
+def preprocess_image(image):
+    # 原始图片转换为tensor类型
+    image = tf.image.decode_jpeg(image, channels=3)
+    # 修改尺寸
+    image = tf.image.resize(image, [image_height, image_width])
+    # 绝对色彩信息
+    image /= 255.0
+    # 返回标准图像
+    return image
+
+
+# 加载和预处理图片
+def load_and_preprocess_image(path):
+    # 读取原始图像
+    image = tf.io.read_file(path)
+    # 预处理图像
+    return preprocess_image(image)
 
 
 # 打包标准图像-标签数据集
 def create_dataset(images, labels):
-    # 打包标准图像数据集
+    # 打包图像地址数据集
     image_ds = tf.data.Dataset.from_tensor_slices(images)
+    # 动态加载和标准化图片，应对大数据
+    image_ds = image_ds.map(load_and_preprocess_image, num_parallel_calls=AUTOTUNE)
     # 打包标签数据集
     label_ds = tf.data.Dataset.from_tensor_slices(labels)
     # 打包标准图像-标签数据集
@@ -68,26 +66,30 @@ AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 # 读取所有图片，返回打乱后所有图片地址，图片所对应的标签，标签命名
 all_image_paths, all_image_labels, label_names = get_paths_labels(data_root)
-# 对图片进行标准化
-standard_images = preprocess_image(all_image_paths)
 # 打包标准图像-标签数据集
-image_label_ds = create_dataset(standard_images, all_image_labels)
+image_label_ds = create_dataset(all_image_paths, all_image_labels)
 
 # 图片总数
 images_count = len(all_image_paths)
 # 分批大小
 batch_size = 32
 
-# 设置一个和数据集大小一致的 shuffle buffer size（随机缓冲区大小）以保证数据被充分打乱。
-image_label_ds = image_label_ds.shuffle(buffer_size=images_count)
-# 数据集不断重复
-image_label_ds = image_label_ds.repeat()
-# 数据集分批
-image_label_ds = image_label_ds.batch(batch_size)
 # 训练数据集为前80%
 train_ds = image_label_ds.take(tf.cast(images_count * 0.8, "int64"))
 # 验证数据集为后20%
 val_ds = image_label_ds.skip(tf.cast(images_count * 0.8, "int64"))
+# 打乱训练集
+train_ds = train_ds.shuffle(buffer_size=tf.cast(images_count * 0.8, "int64"))
+# 打乱验证集
+val_ds = val_ds.shuffle(buffer_size=tf.cast(images_count * 0.2, "int64"))
+# 重复训练集
+train_ds = train_ds.repeat()
+# 重复验证集
+val_ds = val_ds.repeat()
+# 训练集分批
+train_ds = train_ds.batch(batch_size=batch_size)
+# 验证集分批
+val_ds = val_ds.batch(batch_size=batch_size)
 
 # 获取已存在的MobileNetV2模型
 mobile_net = tf.keras.applications.MobileNetV2(input_shape=(image_height, image_width, 3), include_top=False)
