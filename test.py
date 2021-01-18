@@ -48,7 +48,7 @@ def get_images():
 
 
 # 标签名字
-labels_name = ['cherry', 'chinese rose', 'daisy', 'dandelion', 'myosotis', 'popy', 'roses', 'sunflowers', 'tulips',
+labels_name = ['cherry', 'chinese rose', 'daisy', 'dandelion', 'myosotis', 'poppy', 'roses', 'sunflowers', 'tulips',
                'violet']
 # 模型存储位置
 checkpoint_save_path = "./plant.ckpt"
