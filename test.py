@@ -8,7 +8,7 @@ def get_images():
     images_name = []
     # 图片流列表
     images_list = []
-    # 输入地址
+    # 输入路径
     path = input("image path: ")
     if os.path.isdir(path):
         for root, dirs, files in os.walk(path):
