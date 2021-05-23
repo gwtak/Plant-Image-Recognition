@@ -104,6 +104,8 @@ model = tf.keras.Sequential([
 model.compile(optimizer=tf.keras.optimizers.Adam(), loss='sparse_categorical_crossentropy', metrics=["accuracy"])
 # 模型信息概览
 model.summary()
+# 生成模型图片
+tf.keras.utils.plot_model(model, to_file='model.png', show_shapes=True)
 # 模型存储位置
 checkpoint_save_path = "./plant.ckpt"
 # 判断是否已有模型参数

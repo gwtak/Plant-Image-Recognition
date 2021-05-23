@@ -76,7 +76,7 @@ for i in range(len(images_name)):
     # 测试
     result = model.predict(images_stream[i])
     # 输出最大概率的标签
-    print(images_name[i] + "\nmaximum probability: " + labels_name[int(result.argmax())])
+    print(images_name[i] + "\maximum probability: " + labels_name[int(result.argmax())])
     # 输出标签所有概率
     for j in range(len(labels_name)):
         print(labels_name[j] + ": " + str(round(result[0][j] * 100, 2)) + "%")
