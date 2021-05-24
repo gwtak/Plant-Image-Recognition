@@ -94,6 +94,7 @@ if os.path.exists(checkpoint_save_path + '.index'):
     # 加载现有模型
     model.load_weights(checkpoint_save_path)
 
+
 # 获取图片名字列表，图片流列表
 images_name, images_stream = get_images()
 # 各种类图片标签命中
@@ -110,7 +111,6 @@ for i in range(len(images_name)):
     real_label = get_label_name(images_name[i])
     # 预测得到的标签
     pre_label = labels_name[int(result.argmax())]
-
     # 实际标签与预测得到的标签相同
     if (real_label == pre_label):
         image_acc[int(result.argmax())] = image_acc[int(result.argmax())] + 1
@@ -122,14 +122,14 @@ for i in range(len(images_name)):
             if (labels_name[i] == real_label):
                 image_count[i] = image_count[i] + 1
                 break
-
     # 输出最大概率的标签
     print(images_name[i] + "\nmaximum probability: " + pre_label)
     # 输出标签所有概率
     for j in range(len(labels_name)):
         print(labels_name[j] + ": " + str(round(result[0][j] * 100, 2)) + "%")
 
-# 输出全部图片预测的准确率
+
+# 输出全部图片预测的准确率汇总
 print("---------------all images acc---------------")
 for i in range(len(labels_name)):
     if (image_count[i]):
