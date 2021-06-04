@@ -75,9 +75,10 @@ def get_label_name(path):
     return path[left:right]
 
 
-# 标签名字
-labels_name = ['cherry', 'chinese rose', 'daisy', 'dandelion', 'myosotis', 'poppy', 'roses', 'sunflowers', 'tulips',
-               'violet']
+# 标签名字英文
+labels_name = ['cherry', 'chinese rose', 'daisy', 'dandelion', 'myosotis', 'poppy', 'roses', 'sunflowers', 'tulips', 'violet']
+# 标签名字中文
+chinese_name = ['樱花', '月季', '雏菊', '蒲公英', '勿忘我', '罂粟花', '玫瑰', '向日葵', '郁金香', '紫罗兰']
 # 模型存储位置
 checkpoint_save_path = "./plant.ckpt"
 # 获取已存在的MobileNetV2模型
@@ -91,7 +92,7 @@ model = tf.keras.Sequential([
     tf.keras.layers.Dense(len(labels_name), activation='softmax')])
 # 判断是否已有模型
 if os.path.exists(checkpoint_save_path + '.index'):
-    print('-------------load the model-----------------')
+    print('-------------加载模型-----------------')
     # 加载现有模型
     model.load_weights(checkpoint_save_path)
 
@@ -123,15 +124,15 @@ for i in range(len(images_name)):
                 image_count[i] = image_count[i] + 1
                 break
     # 输出最大概率的标签
-    print(images_name[i] + "\nmaximum probability: " + pre_label)
+    print(images_name[i] + "\n识别结果: " + pre_label)
     # 输出标签所有概率
     for j in range(len(labels_name)):
-        print(labels_name[j] + ": " + str(round(result[0][j] * 100, 2)) + "%")
+        print(chinese_name[j] + ": " + str(round(result[0][j] * 100, 2)) + "%")
 
 # 输出全部图片预测的准确率汇总
-print("---------------all images acc---------------")
+print("---------------所有图片统计信息---------------")
 for i in range(len(labels_name)):
     if (image_count[i]):
-        print(labels_name[i] + " acc: " + str(round(image_acc[i] / image_count[i] * 100, 2)) + "%")
+        print(chinese_name[i] + "命中率: " + str(round(image_acc[i] / image_count[i] * 100, 2)) + "%")
     else:
-        print(labels_name[i] + " acc: 0.00%")
+        print(chinese_name[i] + "命中率: 0.00%")
