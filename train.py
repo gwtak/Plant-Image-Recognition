@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import tensorflow as tf
+import matplotlib
 import pathlib
 import random
 import os
@@ -110,16 +111,19 @@ tf.keras.utils.plot_model(model, to_file='model.png', show_shapes=True)
 checkpoint_save_path = "./plant.ckpt"
 # 判断是否已有模型参数
 if os.path.exists(checkpoint_save_path + '.index'):
-    print('-------------load the model-----------------')
+    print('-------------加载模型-----------------')
     # 加载现有模型参数
     model.load_weights(checkpoint_save_path)
 # 设置回调函数，每迭代一次存储最优模型参数
 cp_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_save_path, save_weights_only=True,
                                                  save_best_only=True)
-# 保证对每次迭代对所有图片都进行训练，images_count = steps_per_epoch * batch_size
-steps_per_epoch = tf.math.ceil(images_count / batch_size).numpy()
-# 拟合，训练数据集train_ds，迭代3次，每次迭代批数steps_per_epoch，验证数据集val_ds，回调函数存储每次迭代最优解
-history = model.fit(train_ds, epochs=3, steps_per_epoch=steps_per_epoch, validation_data=val_ds, validation_steps=5,
+# 保证对每次迭代对所有训练图片都进行训练
+train_per_epoch = tf.math.ceil(images_count * 0.8 / batch_size).numpy()
+# 保证对每次迭代对所有验证图片都进行验证
+val_per_epoch = tf.math.ceil(images_count * 0.2 / batch_size).numpy()
+# 拟合，训练数据集train_ds，迭代10次，每次迭代批数train_per_epoch，验证数据集val_ds，回调函数存储每次迭代最优解
+history = model.fit(train_ds, epochs=1, steps_per_epoch=train_per_epoch, validation_data=val_ds,
+                    validation_steps=val_per_epoch,
                     callbacks=[cp_callback])
 
 # 训练集命中
@@ -131,15 +135,24 @@ loss = history.history['loss']
 # 验证集损失函数
 val_loss = history.history['val_loss']
 
+# pyplot并不默认支持中文显示，需要rcParams修改字体实现，'SimHei'为中文黑体
+matplotlib.rcParams['font.family'] = 'SimHei'
+# 显示大字体
+matplotlib.rcParams['font.size'] = 20
+
 plt.subplot(1, 2, 1)
-plt.plot(acc, label='Training Accuracy')
-plt.plot(val_acc, label='Validation Accuracy')
-plt.title('Training and Validation Accuracy')
+plt.plot(acc, label='训练集命中率')
+plt.plot(val_acc, label='验证集命中率')
+plt.title('训练集和验证集的命中率')
+plt.xlabel('迭代次数')
+plt.ylabel('命中率')
 plt.legend()
 
 plt.subplot(1, 2, 2)
-plt.plot(loss, label='Training Loss')
-plt.plot(val_loss, label='Validation Loss')
-plt.title('Training and Validation Loss')
+plt.plot(loss, label='训练集损失率')
+plt.plot(val_loss, label='验证集损失率')
+plt.title('训练集和验证集的损失率')
+plt.xlabel('迭代次数')
+plt.ylabel('损失率')
 plt.legend()
 plt.show()
