@@ -122,7 +122,7 @@ train_per_epoch = tf.math.ceil(images_count * 0.8 / batch_size).numpy()
 # 保证对每次迭代对所有验证图片都进行验证
 val_per_epoch = tf.math.ceil(images_count * 0.2 / batch_size).numpy()
 # 拟合，训练数据集train_ds，迭代10次，每次迭代批数train_per_epoch，验证数据集val_ds，回调函数存储每次迭代最优解
-history = model.fit(train_ds, epochs=1, steps_per_epoch=train_per_epoch, validation_data=val_ds,
+history = model.fit(train_ds, epochs=10, steps_per_epoch=train_per_epoch, validation_data=val_ds,
                     validation_steps=val_per_epoch,
                     callbacks=[cp_callback])
 
